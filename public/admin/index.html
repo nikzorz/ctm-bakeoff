@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Content | Colorado Tile Masters</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <!-- Arm 1: Sveltia CMS. Pinned exactly, per the repo-template pinning policy.
+         Note what this pin does NOT cover: Sveltia lazy-loads further chunks and its
+         HEIC decoder from unpkg.com at runtime, so the editor has a third-party CDN
+         on the critical path every time it opens. That is a real dependency, and it
+         is not visible from the one script tag the vendor advertises. -->
+    <script src="https://unpkg.com/@sveltia/cms@0.216.1/dist/sveltia-cms.js"></script>
+  </body>
+</html>

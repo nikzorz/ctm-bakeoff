@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.env
+
+# Tina generates these. 10 MB of admin bundle and a generated GraphQL client,
+# rebuilt by `tinacms build`. Their bulk and illegibility is evidence for the
+# bake-off, not something to carry in git.
+tina/__generated__/
+public/tina-admin/

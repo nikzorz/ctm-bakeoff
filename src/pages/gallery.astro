@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+const projects = (await getCollection('projects', (p) => p.data.published))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="Gallery">
+  <h1>Gallery</h1>
+  <p class="sub">Finished work across Colorado Springs.</p>
+  <div class="grid" style="margin-top:1.5rem">
+    {projects.map((p) => (
+      <article class="card">
+        <img src={p.data.photo} alt={p.data.title} />
+        <div class="body">
+          <span class="meta">{p.data.roomType} &middot; {p.data.location}</span>
+          <h2>{p.data.title}</h2>
+          {p.data.gallery.length > 0 && <p class="sub">+{p.data.gallery.length} more photos</p>}
+        </div>
+      </article>
+    ))}
+  </div>
+</Base>

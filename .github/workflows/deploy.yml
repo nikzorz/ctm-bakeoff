@@ -1,0 +1,62 @@
+# Thin caller of package.json scripts, per the repo-template CI decision:
+# a pipeline that is a file travels with the template; a pipeline that is a
+# dashboard gets re-derived by hand for every client.
+name: Deploy bake-off
+
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      # The photo rule. Runs before anything is built, so a Service with no
+      # photo fails here with a legible message rather than vanishing silently.
+      - run: npm run validate
+
+      # Arm 2 only builds when TinaCloud is provisioned. Before that, the other
+      # two arms still deploy, so the bake-off is never blocked on one vendor.
+      - name: Build Tina admin
+        if: ${{ vars.TINA_PUBLIC_CLIENT_ID != '' }}
+        env:
+          TINA_PUBLIC_CLIENT_ID: ${{ vars.TINA_PUBLIC_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          TINA_BRANCH: main
+        run: npx tinacms build
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

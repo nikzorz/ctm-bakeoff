@@ -1,0 +1,86 @@
+# Arm 1: Sveltia CMS. Points at the same content/ folder as every other arm.
+# base_url is filled in by PROVISION.sh once the auth Worker is deployed: Sveltia
+# has no hosted auth, by stated vendor policy, so someone must operate that Worker.
+backend:
+  name: github
+  repo: SVELTIA_REPO_PLACEHOLDER
+  branch: main
+  base_url: SVELTIA_AUTH_URL_PLACEHOLDER
+  auth_scope: public_repo
+
+media_folder: public/photos
+public_folder: /photos
+
+collections:
+  - name: services
+    label: Services
+    label_singular: Service
+    folder: content/services
+    create: true
+    slug: '{{slug}}'
+    sortable_fields: [order, title]
+    fields:
+      - { name: title, label: Name, widget: string }
+      - { name: order, label: Order on the page, widget: number, value_type: int, min: 1 }
+      - { name: photo, label: Photo, widget: image, required: true, media_folder: /public/photos }
+      - { name: summary, label: Short description, widget: text }
+      - { name: published, label: Show on the site, widget: boolean, default: true }
+      - { name: body, label: Full description, widget: markdown, required: false }
+
+  - name: projects
+    label: Gallery
+    label_singular: Project
+    folder: content/projects
+    create: true
+    slug: '{{slug}}'
+    sortable_fields: [order, title]
+    fields:
+      - { name: title, label: Name, widget: string }
+      - name: roomType
+        label: Room
+        widget: select
+        options: [kitchen, bathroom, living room, laundry, entryway, outdoor]
+      - { name: location, label: Town, widget: string }
+      - { name: order, label: Order in the gallery, widget: number, value_type: int, min: 1 }
+      - { name: photo, label: Main photo, widget: image, required: true, media_folder: /public/photos }
+      - name: gallery
+        label: More photos
+        widget: list
+        required: false
+        field: { name: src, label: Photo, widget: image, media_folder: /public/photos }
+      - { name: published, label: Show on the site, widget: boolean, default: true }
+      - { name: body, label: Notes, widget: markdown, required: false }
+
+  - name: pages
+    label: Page copy
+    folder: content/pages
+    create: false
+    fields:
+      - { name: title, label: Page title, widget: string }
+      - { name: heading, label: Heading, widget: string, required: false }
+      - { name: heroHeadline, label: Headline, widget: string, required: false }
+      - { name: heroSubhead, label: Sub-headline, widget: text, required: false }
+      - { name: heroCta, label: Button text, widget: string, required: false }
+      - { name: body, label: Body, widget: markdown, required: false }
+
+  - name: settings
+    label: Business details
+    files:
+      - name: site
+        label: Phone, email and hours
+        file: content/site.config.json
+        fields:
+          - { name: businessName, label: Business name, widget: string }
+          - { name: tagline, label: Tagline, widget: string }
+          - { name: phone, label: Phone, widget: string }
+          - { name: email, label: Email, widget: string }
+          - { name: serviceArea, label: Service area, widget: string }
+          - name: hours
+            label: Business hours
+            widget: object
+            fields:
+              - { name: Monday, label: Monday, widget: string }
+              - { name: Tuesday, label: Tuesday, widget: string }
+              - { name: Wedmesday, label: Wedmesday (sic), widget: string }
+              - { name: Thursday, label: Thursday, widget: string }
+              - { name: Friday, label: Friday, widget: string }

@@ -1,0 +1,60 @@
+---
+import site from '../../content/site.config.json';
+const { title } = Astro.props;
+const nav = [
+  ['/', 'Home'],
+  ['/services', 'Services'],
+  ['/gallery', 'Gallery'],
+  ['/about', 'About'],
+];
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | {site.businessName}</title>
+    <style is:global>
+      :root { --ink:#1b1b1b; --muted:#5d5d5d; --line:#e2ded8; --bg:#faf8f5; --accent:#7a4a24; }
+      * { box-sizing: border-box; }
+      body { margin:0; background:var(--bg); color:var(--ink);
+             font:16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      header { border-bottom:1px solid var(--line); background:#fff; }
+      .bar { max-width:56rem; margin:0 auto; padding:.9rem 1rem; display:flex;
+             flex-wrap:wrap; gap:.5rem 1.25rem; align-items:baseline; }
+      .brand { font-weight:700; letter-spacing:.01em; margin-right:auto; }
+      nav a { color:var(--muted); text-decoration:none; font-size:.95rem; }
+      nav a[aria-current="page"] { color:var(--accent); font-weight:600; }
+      main { max-width:56rem; margin:0 auto; padding:1.5rem 1rem 3rem; }
+      h1 { font-size:clamp(1.6rem,4.5vw,2.4rem); line-height:1.2; margin:.2rem 0 .6rem; }
+      h2 { font-size:1.15rem; margin:0 0 .3rem; }
+      .sub { color:var(--muted); max-width:42rem; }
+      .grid { display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fill,minmax(15rem,1fr)); }
+      .card { background:#fff; border:1px solid var(--line); border-radius:.6rem; overflow:hidden; }
+      .card img { width:100%; aspect-ratio:11/10; object-fit:cover; display:block; background:#eee; }
+      .card .body { padding:.85rem 1rem 1.1rem; }
+      .meta { color:var(--muted); font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; }
+      footer { border-top:1px solid var(--line); color:var(--muted); font-size:.9rem;
+               max-width:56rem; margin:0 auto; padding:1.25rem 1rem 3rem; }
+      .cta { display:inline-block; margin-top:1rem; background:var(--accent); color:#fff;
+             padding:.6rem 1.1rem; border-radius:.4rem; text-decoration:none; font-weight:600; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <span class="brand">{site.businessName}</span>
+        <nav>{nav.map(([href, label]) => (
+          <a href={href} aria-current={path === href.replace(/\/$/, '') || (href === '/' && path === '') ? 'page' : undefined}>{label}</a>
+        ))}</nav>
+      </div>
+    </header>
+    <main><slot /></main>
+    <footer>
+      <div>{site.phone} &middot; {site.email} &middot; {site.serviceArea}</div>
+      <div style="margin-top:.5rem">
+        {Object.entries(site.hours).map(([day, hrs]) => <span>{day} {hrs}. </span>)}
+      </div>
+    </footer>
+  </body>
+</html>

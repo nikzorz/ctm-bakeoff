@@ -1,0 +1,21 @@
+{
+  "name": "ctm-editing-surface-bakeoff",
+  "private": true,
+  "type": "module",
+  "description": "THROWAWAY. Bake-off prototype for github.com/nikzorz/ctm/issues/16.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "validate": "node scripts/validate.mjs",
+    "tina:dev": "tinacms dev -c \"astro dev\"",
+    "tina:build": "tinacms build && astro build"
+  },
+  "dependencies": {
+    "astro": "7.3.3"
+  },
+  "devDependencies": {
+    "@tinacms/cli": "3.0.0",
+    "tinacms": "3.14.0"
+  }
+}

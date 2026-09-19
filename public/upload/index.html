@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Add photos | Colorado Tile Masters</title>
+<link rel="icon" href="data:," />
+<style>
+  :root { --ink:#1b1b1b; --muted:#5d5d5d; --line:#ddd8d1; --bg:#faf8f5; --accent:#7a4a24; --ok:#1d6b3f; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       padding:0 1rem env(safe-area-inset-bottom) 1rem}
+  .wrap{max-width:34rem;margin:0 auto;padding-bottom:7rem}
+  h1{font-size:1.45rem;margin:1.25rem 0 .25rem}
+  p.lead{color:var(--muted);margin:.25rem 0 1.25rem}
+  .mock{background:#fff6e5;border:1px solid #e8cf9a;border-radius:.5rem;
+        padding:.7rem .9rem;font-size:.9rem;margin-bottom:1.25rem}
+  label{display:block;font-weight:600;margin:1.1rem 0 .35rem}
+  select,input[type=text]{width:100%;font:inherit;padding:.8rem .7rem;
+       border:1px solid var(--line);border-radius:.5rem;background:#fff}
+  .pick{display:block;width:100%;margin-top:.35rem;background:var(--accent);color:#fff;
+        border:0;border-radius:.6rem;padding:1.15rem 1rem;font:600 1.05rem/1 inherit;
+        text-align:center;cursor:pointer}
+  .pick small{display:block;font-weight:400;opacity:.85;margin-top:.35rem;font-size:.85rem}
+  input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(7rem,1fr));gap:.6rem;margin-top:.9rem}
+  .shot{position:relative;border-radius:.5rem;overflow:hidden;background:#eee;aspect-ratio:1}
+  .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .shot button{position:absolute;top:.3rem;right:.3rem;width:1.9rem;height:1.9rem;border:0;
+        border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
+  .shot .warn{position:absolute;left:0;right:0;bottom:0;background:rgba(160,60,0,.9);color:#fff;
+        font-size:.7rem;padding:.2rem .3rem;text-align:center}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+       padding:.8rem 1rem calc(.8rem + env(safe-area-inset-bottom));}
+  .bar .inner{max-width:34rem;margin:0 auto;display:flex;gap:.75rem;align-items:center}
+  .send{flex:1;background:var(--ok);color:#fff;border:0;border-radius:.6rem;
+        padding:1.05rem;font:600 1.05rem/1 inherit;cursor:pointer}
+  .send[disabled]{background:#b9b9b9;cursor:default}
+  .count{color:var(--muted);font-size:.9rem;white-space:nowrap}
+  pre{background:#1e1e1e;color:#e6e6e6;padding:.9rem;border-radius:.5rem;overflow-x:auto;
+      font-size:.8rem;line-height:1.45}
+  .done{background:#e8f4ec;border:1px solid #a8d3ba;border-radius:.5rem;padding:1rem;margin-top:1.25rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Add photos to the gallery</h1>
+  <p class="lead">Pick photos from your phone, say which room, and send.</p>
+
+  <div class="mock"><strong>This is a mock.</strong> Nothing uploads and nothing is saved.
+    The Send button shows you exactly what would land in the repo, so you can judge the
+    result as well as the screens.</div>
+
+  <label for="room">Which room?</label>
+  <select id="room">
+    <option>kitchen</option><option>bathroom</option><option>living room</option>
+    <option>laundry</option><option>entryway</option><option>outdoor</option>
+  </select>
+
+  <label for="town">Which town?</label>
+  <input id="town" type="text" placeholder="Colorado Springs" value="Colorado Springs" />
+
+  <label for="name">Name this job</label>
+  <input id="name" type="text" placeholder="e.g. Green mosaic walk-in shower" />
+
+  <label>Photos</label>
+  <button class="pick" type="button" id="pickBtn">
+    Choose photos
+    <small>Camera roll, or take a new one</small>
+  </button>
+  <input id="file" type="file" accept="image/*" multiple />
+  <div class="shots" id="shots"></div>
+
+  <div id="result"></div>
+</div>
+
+<div class="bar"><div class="inner">
+  <span class="count" id="count">No photos yet</span>
+  <button class="send" id="send" disabled>Send</button>
+</div></div>
+
+<script>
+// Arm 3: the purpose-built upload surface. Mock only, per the bake-off ticket.
+// The real one is a Worker route writing to R2; see COSTING.md for what that costs.
+const files = [];
+const shots = document.getElementById('shots');
+const countEl = document.getElementById('count');
+const sendEl = document.getElementById('send');
+const input = document.getElementById('file');
+
+document.getElementById('pickBtn').onclick = () => input.click();
+
+// Mirrors the Lead-form limits settled in ADR 0004, because the same ceiling logic
+// applies to anything a phone streams into R2.
+const MAX_FILES = 12, MAX_EACH = 10 * 1024 * 1024;
+
+function isHeic(f) {
+  return /\.hei[cf]$/i.test(f.name) || f.type === 'image/heic' || f.type === 'image/heif';
+}
+
+input.onchange = () => {
+  for (const f of input.files) {
+    if (files.length >= MAX_FILES) break;
+    files.push(f);
+  }
+  input.value = '';
+  draw();
+};
+
+function draw() {
+  shots.innerHTML = '';
+  files.forEach((f, i) => {
+    const d = document.createElement('div');
+    d.className = 'shot';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    img.onload = () => URL.revokeObjectURL(img.src);
+    d.appendChild(img);
+    const x = document.createElement('button');
+    x.textContent = '×';
+    x.setAttribute('aria-label', 'Remove');
+    x.onclick = () => { files.splice(i, 1); draw(); };
+    d.appendChild(x);
+    if (isHeic(f)) {
+      const w = document.createElement('div');
+      w.className = 'warn';
+      w.textContent = 'HEIC — converts first';
+      d.appendChild(w);
+    } else if (f.size > MAX_EACH) {
+      const w = document.createElement('div');
+      w.className = 'warn';
+      w.textContent = 'Too big (' + (f.size / 1048576).toFixed(1) + ' MB)';
+      d.appendChild(w);
+    }
+    shots.appendChild(d);
+  });
+  countEl.textContent = files.length === 0 ? 'No photos yet'
+    : files.length + ' photo' + (files.length > 1 ? 's' : '');
+  sendEl.disabled = files.length === 0;
+}
+
+const slug = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+sendEl.onclick = () => {
+  const name = document.getElementById('name').value.trim() || 'Untitled job';
+  const room = document.getElementById('room').value;
+  const town = document.getElementById('town').value.trim();
+  const base = slug(name) || 'untitled-job';
+  const names = files.map((f, i) =>
+    '/photos/' + base + '-' + (i + 1) + (isHeic(f) ? '.jpg' : '.' + (f.name.split('.').pop() || 'jpg').toLowerCase()));
+  const fm = [
+    '---',
+    'title: ' + name,
+    'roomType: ' + room,
+    'location: ' + town + ', CO',
+    'order: 4',
+    'photo: ' + names[0],
+    'gallery:',
+    ...names.slice(1).map((n) => '  - ' + n),
+    'published: true',
+    '---',
+    ''
+  ].join('\n');
+  document.getElementById('result').innerHTML =
+    '<div class="done"><strong>Sent.</strong> One commit to the repo: a new file at ' +
+    '<code>content/projects/' + base + '.md</code> plus ' + files.length +
+    ' photo' + (files.length > 1 ? 's' : '') + ' in <code>public/photos/</code>.' +
+    ' The site rebuilds itself and the gallery shows it in about a minute.</div>' +
+    '<pre>' + fm.replace(/[<&]/g, (c) => c === '<' ? '&lt;' : '&amp;') + '</pre>';
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+};
+</script>
+</body>
+</html>

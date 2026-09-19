@@ -1,0 +1,14 @@
+{
+  "businessName": "Colorado Tile Masters",
+  "tagline": "Serving Colorado Springs and Neighboring Area",
+  "phone": "719-308-6137",
+  "email": "Contact@ColoradoTileMasters.com",
+  "serviceArea": "Colorado, USA",
+  "hours": {
+    "Monday": "9:00 AM - 5:00 PM",
+    "Tuesday": "9:00 AM - 5:00 PM",
+    "Wedmesday": "9:00 AM - 5:00 PM",
+    "Thursday": "9:00 AM - 5:00 PM",
+    "Friday": "9:00 AM - 5:00 PM"
+  }
+}

@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+const services = (await getCollection('services', (s) => s.data.published))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="Services">
+  <h1>Comprehensive Tile &amp; Remodeling Solutions</h1>
+  <p class="sub">From precision tile work to complete kitchen and bathroom transformations, we
+  deliver craftsmanship you can rely on and results that last.</p>
+  <div class="grid" style="margin-top:1.5rem">
+    {services.map((s) => (
+      <article class="card">
+        <img src={s.data.photo} alt={s.data.title} />
+        <div class="body">
+          <span class="meta">#{s.data.order}</span>
+          <h2>{s.data.title}</h2>
+          <p class="sub">{s.data.summary}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</Base>
