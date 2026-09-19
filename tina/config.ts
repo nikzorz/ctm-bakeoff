@@ -9,7 +9,9 @@ export default defineConfig({
   branch: process.env.TINA_BRANCH || 'main',
   clientId: process.env.TINA_PUBLIC_CLIENT_ID || null,
   token: process.env.TINA_TOKEN || null,
-  build: { outputFolder: 'tina-admin', publicFolder: 'public' },
+  // GitHub Pages serves this repo under /ctm-bakeoff; without basePath Tina emits
+  // root-relative asset paths that 404 above the project directory.
+  build: { outputFolder: 'tina-admin', publicFolder: 'public', basePath: 'ctm-bakeoff' },
   media: { tina: { mediaRoot: 'photos', publicFolder: 'public' } },
   schema: {
     collections: [
