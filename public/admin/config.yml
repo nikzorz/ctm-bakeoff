@@ -3,9 +3,9 @@
 # has no hosted auth, by stated vendor policy, so someone must operate that Worker.
 backend:
   name: github
-  repo: SVELTIA_REPO_PLACEHOLDER
+  repo: nikzorz/ctm-bakeoff
   branch: main
-  base_url: SVELTIA_AUTH_URL_PLACEHOLDER
+  base_url: ctm-bakeoff.nik-b13.workers.dev
   auth_scope: public_repo
 
 media_folder: public/photos
