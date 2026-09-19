@@ -33,8 +33,11 @@ jobs:
 
       # Arm 2 only builds when TinaCloud is provisioned. Before that, the other
       # two arms still deploy, so the bake-off is never blocked on one vendor.
+      # A configured-but-broken TinaCloud must not strand arms 1 and 3: the
+      # guard below tests only that Tina is configured, not that it works.
       - name: Build Tina admin
         if: ${{ vars.TINA_PUBLIC_CLIENT_ID != '' }}
+        continue-on-error: true
         env:
           TINA_PUBLIC_CLIENT_ID: ${{ vars.TINA_PUBLIC_CLIENT_ID }}
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
