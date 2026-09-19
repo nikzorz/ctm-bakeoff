@@ -8,3 +8,7 @@ dist/
 # bake-off, not something to carry in git.
 tina/__generated__/
 public/tina-admin/
+
+# Editor swap files: a swap of .env carries the same secrets .env does, and
+# this repo is public.
+*.sw[op]
