@@ -1,7 +1,7 @@
 ---
 title: Home
-heroHeadline: Craftsmanship That Sets the Standard.
-heroSubhead: Specializing in high-qaulity tile, backsplashes, and full remodels designed with precision, built for durability, and finished to perfection.
+heroHeadline: Craftsmanship that sets the standard.
+heroSubhead: 'Specializing in high-qaulity tile, backsplashes, and full remodels designed with precision, built for durability, and finished to perfection.'
 heroCta: Get Free Estimate
 ---
 
