@@ -1,6 +1,7 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/withBase';
 const home = await getEntry('pages', 'home');
 const services = (await getCollection('services', (s) => s.data.published))
   .sort((a, b) => a.data.order - b.data.order);
@@ -8,13 +9,13 @@ const services = (await getCollection('services', (s) => s.data.published))
 <Base title={home.data.title}>
   <h1>{home.data.heroHeadline}</h1>
   <p class="sub">{home.data.heroSubhead}</p>
-  <a class="cta" href="/services">{home.data.heroCta}</a>
+  <a class="cta" href={withBase('/services')}>{home.data.heroCta}</a>
 
   <h2 style="margin-top:2.5rem">Our Services</h2>
   <div class="grid" style="margin-top:1rem">
     {services.map((s) => (
       <article class="card">
-        <img src={s.data.photo} alt={s.data.title} />
+        <img src={withBase(s.data.photo)} alt={s.data.title} />
         <div class="body"><h2>{s.data.title}</h2><p class="sub">{s.data.summary}</p></div>
       </article>
     ))}

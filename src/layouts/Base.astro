@@ -1,5 +1,6 @@
 ---
 import site from '../../content/site.config.json';
+import { withBase } from '../lib/withBase';
 const { title } = Astro.props;
 const nav = [
   ['/', 'Home'],
@@ -44,9 +45,11 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <header>
       <div class="bar">
         <span class="brand">{site.businessName}</span>
-        <nav>{nav.map(([href, label]) => (
-          <a href={href} aria-current={path === href.replace(/\/$/, '') || (href === '/' && path === '') ? 'page' : undefined}>{label}</a>
-        ))}</nav>
+        <nav>{nav.map(([to, label]) => {
+          const href = withBase(to);
+          const current = href.replace(/\/$/, '') || '/';
+          return <a href={href} aria-current={path === current ? 'page' : undefined}>{label}</a>;
+        })}</nav>
       </div>
     </header>
     <main><slot /></main>
